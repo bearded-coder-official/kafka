@@ -36,6 +36,7 @@ class ProduceRawCommand extends Command
         $rkProducer = new \RdKafka\Producer();
         $rkProducer->addBrokers(env('KAFKA_BROKERS'));
 
+//        $topic = $rkProducer->newTopic('sherbaka');
         $topic = $rkProducer->newTopic(env('KAFKA_RAWS_TOPIC_QUEUE_NAME'));
 
         $payload = [];
@@ -47,10 +48,12 @@ class ProduceRawCommand extends Command
         $payload['response'] = null;
         $payload['created_at'] = date('Y-m-d H:i:s');
 
-        $json = base64_encode(json_encode($payload));
+        $json = json_encode($payload);
 
         echo $json . PHP_EOL;
 
-        $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
+        for ($i = 1; $i <= 10; $i++) {
+            $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
+        }
     }
 }

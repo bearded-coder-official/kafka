@@ -48,11 +48,15 @@ class ProducerStatisticCommand extends Command
         $payload['UA'] = 'Mozilla/5.0 (Linux; Android 9; moto g(6) play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Mobile Safari/537.36';
         $payload['IP'] = '170.80.224.3';
         $payload['Event'] = rand(0, 1);
+        $payload['Language'] = 'pt-BR';
+        $payload['TriggeredAt'] = date('Y-m-d H:i:s');
 
         $json = base64_encode(json_encode($payload));
 
         echo $json . PHP_EOL;
 
-        $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
+//        for ($i = 1; $i < 1000000; $i++) {
+            $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
+//        }
     }
 }

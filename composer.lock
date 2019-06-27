@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c1ef246ae8b6988cfd0d5236506336e9",
+    "content-hash": "d6d19979b11dc4c78de9e5066c01fca8",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -572,6 +572,40 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "kwn/php-rdkafka-stubs",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kwn/php-rdkafka-stubs.git",
+                "reference": "b81c9a4ae75cb3e336f88fefca82d20d99d02c61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kwn/php-rdkafka-stubs/zipball/b81c9a4ae75cb3e336f88fefca82d20d99d02c61",
+                "reference": "b81c9a4ae75cb3e336f88fefca82d20d99d02c61",
+                "shasum": ""
+            },
+            "require": {
+                "ext-rdkafka": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Karol Wnuk",
+                    "email": "k.wnuk@ascetic.pl"
+                }
+            ],
+            "description": "Rdkafka extension stubs for your IDE",
+            "time": "2018-11-11T19:36:07+00:00"
         },
         {
             "name": "laravel/framework",

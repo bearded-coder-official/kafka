@@ -11,10 +11,12 @@
         "php": "^7.1.3",
         "fideloper/proxy": "^4.0",
         "geoip2/geoip2": "^2.9",
+        "kwn/php-rdkafka-stubs": "^1.2",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "piwik/device-detector": "^3.11",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "psr/log": "^1.1"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

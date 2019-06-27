@@ -67,7 +67,7 @@ class ConsumeAdCommand extends Command
                 break;
             }
 
-            $payload = json_decode(base64_decode($msg->payload), true);
+            $payload = json_decode($msg->payload, true);
 
             $data = [];
             $data['id'] = $payload['id'];

@@ -75,6 +75,7 @@ class ConsumerStatisticCommand extends Command
             $adIp = $payload['IP'];
             $adEvent = $payload['Event'];
             $riggeredAt = $payload['TriggeredAt'] ?? date('Y-m-d H:i:s');
+            $language = $payload['Language'];
 
             $dd = new \DeviceDetector\DeviceDetector($adUa);
             $dd->parse();
@@ -100,7 +101,7 @@ class ConsumerStatisticCommand extends Command
                 $ad['manager_id'] = Uuid::uuid4()->toString();
                 $ad['website_id'] = Uuid::uuid4()->toString();
                 $ad['publisher_id'] = Uuid::uuid4()->toString();
-                $ad['subscriber_id'] = Uuid::uuid4()->toString();
+                $ad['subscriber_id'] = '00003e31-474e-4ed6-ba16-1847801e89e5';
                 $ad['actions'] = 'abc';
                 $ad['badge'] = 'qwe';
                 $ad['body'] = 'rty';
@@ -129,7 +130,6 @@ class ConsumerStatisticCommand extends Command
             });
 
             $os = $dd->getOs()['name'] ?? null;
-            $language = $this->request['HTTP_ACCEPT_LANGUAGE'];
             $device = $dd->getDeviceName() ?? null;
             $brand = $dd->getBrandName() ?? null;
             $client_type = $dd->getClient()['type'] ?? null;
@@ -144,8 +144,6 @@ class ConsumerStatisticCommand extends Command
             $utm_content = $user->utm_content ?? null;
             $driver = $user->driver ?? null;
 
-            $ad = [];
-
             $data = [];
             $data['id'] = Uuid::uuid4()->toString();
             $data['subscriber_id'] = $ad['subscriber_id']; // redis
@@ -155,9 +153,9 @@ class ConsumerStatisticCommand extends Command
             $data['website_id'] = $ad['website_id']; // redis
             $data['manager_id'] = $ad['manager_id']; // redis
             $data['cost_type'] = $ad['type']; // redis
-            $data['revenue'] = round($ad['external_price'], 4, PHP_ROUND_HALF_DOWN); // redis
-            $data['cost'] = round($ad['internal_price'], 4, PHP_ROUND_HALF_DOWN); // redis
-            $data['profit'] = round($ad['external_price'] - $ad['internal_price'], 4, PHP_ROUND_HALF_DOWN); // redis
+            $data['revenue'] = $adEvent == 1 ? round($ad['external_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
+            $data['cost'] = $adEvent == 1 ? round($ad['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
+            $data['profit'] = $adEvent == 1 ? round($ad['external_price'] - $ad['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
             $data['click'] = $adEvent == 0 ? 0 : 1;
             $data['impression'] = $adEvent == 1 ? 0 : 1;
             $data['is_duplicate'] = 0;
