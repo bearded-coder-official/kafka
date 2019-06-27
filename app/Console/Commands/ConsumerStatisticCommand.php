@@ -81,7 +81,7 @@ class ConsumerStatisticCommand extends Command
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
                     echo "!!!";
 
-                    try {
+//                    try {
                         $payload = json_decode($message->payload, true);
 
                         $adId = $payload['Id'];
@@ -205,9 +205,9 @@ class ConsumerStatisticCommand extends Command
                         echo $json . PHP_EOL;
 
                         $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
-                    } catch (\Throwable $error) {
-                        echo "\nERROR: " . $error->getMessage() . "\n" . $error->getFile() . "\n";
-                    }
+//                    } catch (\Throwable $error) {
+//                        echo "\nERROR: " . $error->getMessage() . "\n" . $error->getFile() . "\n";
+//                    }
 
                     break;
                 case \RD_KAFKA_RESP_ERR__PARTITION_EOF:
