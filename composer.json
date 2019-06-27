@@ -14,6 +14,7 @@
         "kwn/php-rdkafka-stubs": "^1.2",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
+        "monospice/laravel-redis-sentinel-drivers": "^2.5",
         "piwik/device-detector": "^3.11",
         "predis/predis": "^1.1",
         "psr/log": "^1.1"

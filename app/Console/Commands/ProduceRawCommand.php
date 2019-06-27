@@ -36,7 +36,6 @@ class ProduceRawCommand extends Command
         $rkProducer = new \RdKafka\Producer();
         $rkProducer->addBrokers(env('KAFKA_BROKERS'));
 
-//        $topic = $rkProducer->newTopic('sherbaka');
         $topic = $rkProducer->newTopic(env('KAFKA_RAWS_TOPIC_QUEUE_NAME'));
 
         $payload = [];

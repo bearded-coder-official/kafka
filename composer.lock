@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6d19979b11dc4c78de9e5066c01fca8",
+    "content-hash": "a2b90fa4a9e001c0d3e1a49070da1414",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -1080,6 +1080,156 @@
                 "psr-3"
             ],
             "time": "2018-11-05T09:00:11+00:00"
+        },
+        {
+            "name": "monospice/laravel-redis-sentinel-drivers",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/laravel-redis-sentinel-drivers.git",
+                "reference": "76e3cf56cdf006fe106242344d137131e3c0b2f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/laravel-redis-sentinel-drivers/zipball/76e3cf56cdf006fe106242344d137131e3c0b2f3",
+                "reference": "76e3cf56cdf006fe106242344d137131e3c0b2f3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/cache": "^5.4",
+                "illuminate/contracts": "^5.4",
+                "illuminate/queue": "^5.4",
+                "illuminate/redis": "^5.4",
+                "illuminate/session": "^5.4",
+                "illuminate/support": "^5.4",
+                "monospice/spicy-identifiers": "^0.1",
+                "php": ">=5.6.4",
+                "predis/predis": "^1.1"
+            },
+            "require-dev": {
+                "laravel/framework": "^5.4",
+                "laravel/horizon": "^1.0",
+                "laravel/lumen-framework": "^5.4",
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Monospice\\LaravelRedisSentinel\\RedisSentinelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\LaravelRedisSentinel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy@rossignols.me"
+                }
+            ],
+            "description": "Redis Sentinel integration for Laravel and Lumen.",
+            "keywords": [
+                "laravel",
+                "lumen",
+                "redis",
+                "sentinel"
+            ],
+            "time": "2018-09-20T06:56:16+00:00"
+        },
+        {
+            "name": "monospice/spicy-identifier-tools",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/spicy-identifier-tools.git",
+                "reference": "8659493c64d3023c38bf4f325bff86fbb53c085a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/spicy-identifier-tools/zipball/8659493c64d3023c38bf4f325bff86fbb53c085a",
+                "reference": "8659493c64d3023c38bf4f325bff86fbb53c085a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~2.2",
+                "phpunit/phpunit": "~4.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\SpicyIdentifiers\\Tools\\": "src/Tools"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy.rossignol@yahoo.com"
+                }
+            ],
+            "description": "An easy way to parse, convert, and format identifier names.",
+            "time": "2015-11-04T19:00:37+00:00"
+        },
+        {
+            "name": "monospice/spicy-identifiers",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/spicy-identifiers.git",
+                "reference": "ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/spicy-identifiers/zipball/ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd",
+                "reference": "ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd",
+                "shasum": ""
+            },
+            "require": {
+                "monospice/spicy-identifier-tools": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\SpicyIdentifiers\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy@rossignols.me"
+                }
+            ],
+            "description": "An easy way to parse and manipulate identifier names, such as dynamic method names.",
+            "keywords": [
+                "dynamic",
+                "method",
+                "parser",
+                "variable"
+            ],
+            "time": "2017-01-29T09:00:23+00:00"
         },
         {
             "name": "mustangostang/spyc",

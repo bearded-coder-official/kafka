@@ -35,6 +35,7 @@ class ProducerStatisticCommand extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {
@@ -51,12 +52,12 @@ class ProducerStatisticCommand extends Command
         $payload['Language'] = 'pt-BR';
         $payload['TriggeredAt'] = date('Y-m-d H:i:s');
 
-        $json = base64_encode(json_encode($payload));
+        $json = json_encode($payload);
 
         echo $json . PHP_EOL;
 
-//        for ($i = 1; $i < 1000000; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
             $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
-//        }
+        }
     }
 }
