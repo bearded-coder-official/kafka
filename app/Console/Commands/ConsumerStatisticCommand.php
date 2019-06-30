@@ -79,8 +79,6 @@ class ConsumerStatisticCommand extends Command
             $message = $consumer->consume(120 * 1000);
             switch ($message->err) {
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
-                    echo "!!!";
-
 //                    try {
                         $payload = json_decode($message->payload, true);
 
