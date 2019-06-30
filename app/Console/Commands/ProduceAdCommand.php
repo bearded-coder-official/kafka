@@ -76,7 +76,7 @@ class ProduceAdCommand extends Command
 
         echo $json . PHP_EOL;
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 1; $i++) {
             $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
         }
     }

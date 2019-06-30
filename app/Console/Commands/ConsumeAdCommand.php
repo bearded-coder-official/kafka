@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Services\NotifyService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
 
 class ConsumeAdCommand extends Command
@@ -21,6 +23,8 @@ class ConsumeAdCommand extends Command
      */
     protected $description = 'Command description';
 
+    protected $notifyService;
+
     /**
      * Create a new command instance.
      *
@@ -29,6 +33,8 @@ class ConsumeAdCommand extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->notifyService = new NotifyService();
     }
 
     /**
@@ -109,7 +115,13 @@ class ConsumeAdCommand extends Command
                     $data['manager_id'] = 'e6b39ed1-56ff-4079-87e0-dc22c7dc4a24'; // Vitalik
                     $data['project_id'] = '9f951b51-a60e-4c74-9346-35c68b66add3'; // RevQuake
 
-                    $json = json_encode($data);
+                    $json = json_encode($data, JSON_PRETTY_PRINT);
+
+                    $bag = $this->validate($data);
+                    if ($bag->count() > 0) {
+                        $this->notifyService->notify("RAW REQUEST PROBLEM", $bag->getMessages(), $json);
+                        continue;
+                    }
 
                     echo $json . PHP_EOL;
 
@@ -127,5 +139,41 @@ class ConsumeAdCommand extends Command
                     break;
             }
         }
+    }
+
+    protected function validate(array $message)
+    {
+        $validator = Validator::make($message, [
+            'id' => 'required|uuid',
+            'raw_id' => 'required|uuid',
+            'advertiser_id' => 'nullable|uuid',
+            'website_id' => 'nullable|uuid',
+            'publisher_id' => 'nullable|uuid',
+            'subscriber_id' => 'nullable|uuid',
+            'actions' => 'nullable',
+            'badge' => 'nullable',
+            'body' => 'nullable',
+            'data' => 'nullable',
+            'dir' => 'nullable',
+            'lang' => 'nullable',
+            'tag' => 'nullable',
+            'icon' => 'required|url',
+            'image' => 'nullable|url',
+            'renotify' => 'nullable',
+            'require_interaction' => 'nullable',
+            'silent' => 'nullable',
+            'timestamp' => 'nullable',
+            'title' => 'required|nullable',
+            'vibrate' => 'nullable',
+            'type' => 'in:cpc,cpa,cpi',
+            'external_price' => 'required|numeric',
+            'internal_price' => 'required|numeric|lte:external_price',
+            'url' => 'required|url',
+            'manager_id' => 'required|uuid',
+            'project_id' => 'required|uuid',
+            'created_at' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        return $validator->errors();
     }
 }
