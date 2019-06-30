@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Services\NotifyService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 
 class ConsumeRawCommand extends Command
 {
@@ -20,6 +22,8 @@ class ConsumeRawCommand extends Command
      */
     protected $description = 'Command description';
 
+    protected $notifyService;
+
     /**
      * Create a new command instance.
      *
@@ -28,6 +32,8 @@ class ConsumeRawCommand extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->notifyService = new NotifyService();
     }
 
     /**
@@ -87,7 +93,13 @@ class ConsumeRawCommand extends Command
                     $data['project_id'] = '9f951b51-a60e-4c74-9346-35c68b66add3'; // RevQuake
                     $data['created_at'] = $payload['created_at'];
 
-                    $json = json_encode($data);
+                    $json = json_encode($data, JSON_PRETTY_PRINT);
+
+                    $bag = $this->validate($data);
+                    if ($bag->count() > 0) {
+                        $this->notifyService->notify("RAW REQUEST PROBLEM", $bag->getMessages(), $json);
+                        continue;
+                    }
 
                     echo $json . PHP_EOL;
 
@@ -105,5 +117,22 @@ class ConsumeRawCommand extends Command
                     break;
             }
         }
+    }
+
+    protected function validate(array $message)
+    {
+        $validator = Validator::make($message, [
+            'id' => 'required|uuid',
+            'advertiser_id' => 'nullable|uuid',
+            'publisher_id' => 'nullable|uuid',
+            'request' => 'nullable',
+            'payload' => 'nullable',
+            'response' => 'nullable',
+            'manager_id' => 'required|uuid',
+            'project_id' => 'required|uuid',
+            'created_at' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        return $validator->errors();
     }
 }
