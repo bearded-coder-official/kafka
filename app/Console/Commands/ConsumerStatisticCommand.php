@@ -85,28 +85,44 @@ class ConsumerStatisticCommand extends Command
             $message = $consumer->consume(120 * 1000);
             switch ($message->err) {
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
-//                    try {
-                        var_dump($message->payload);
-                        echo "\n\n";
+                    var_dump($message->payload);
+                    echo "\n\n";
 
-                        $payload = json_decode($message->payload, true);
+                    $payload = json_decode($message->payload, true);
 
-                        if ($payload == null) {
-                            $this->notifyService->notify("STATISTICS REQUEST PARSE PROBLEM", [], $message->payload);
+                    if ($payload == null) {
+                        $this->notifyService->notify("STATISTICS REQUEST PARSE PROBLEM", [], $message->payload);
+                        continue 2;
+                    }
 
-                            continue;
-                        }
+                    $bag = $this->validatePayload($payload);
 
-                        $adId = $payload['id'];
-                        $adUa = $payload['ua'];
-                        $adIp = $payload['ip'];
-                        $adEvent = $payload['event'];
-                        $triggeredAt = $payload['triggered_at'] ?? date('Y-m-d H:i:s');
-                        $language = $payload['language'];
+                    if ($bag->count() > 0) {
+                        $this->notifyService->notify("STATISTICS REQUEST PROBLEM", $bag->getMessages(), $message->payload);
+                        continue 2;
+                    }
 
-                        $dd = new \DeviceDetector\DeviceDetector($adUa);
-                        $dd->parse();
+                    $adId = $payload['id'];
+                    $adUa = $payload['ua'];
+                    $adIp = $payload['ip'];
+                    $adEvent = $payload['event'];
+                    $triggeredAt = $payload['triggered_at'] ?? date('Y-m-d H:i:s');
+                    $language = $payload['language'];
 
+                    $dd = new \DeviceDetector\DeviceDetector($adUa);
+                    $dd->parse();
+
+                    $_city = null;
+                    $_country = null;
+                    $_connectionType = null;
+
+                    $connection_type = null;
+                    $city_iso = null;
+                    $country_iso = null;
+                    $continent_iso = null;
+                    $timezone = null;
+
+                    try {
                         $_city = $container->get('\GeoIp2\Database\Reader\City');
                         $_country = $container->get('\GeoIp2\Database\Reader\Country');
                         $_connectionType = $container->get('\GeoIp2\Database\Reader\ConnectionType');
@@ -115,82 +131,86 @@ class ConsumerStatisticCommand extends Command
                         $_country = $_country->country($adIp);
                         $_connectionType = $_connectionType->connectionType($adIp);
 
-                        $user = null;
-                        if ($payload['subscriber_id']) {
-                            $subscriberId = $payload['subscriber_id'];
-
-                            $user = Subscriber::find($subscriberId);
-                        }
-
-                        $os = $dd->getOs()['name'] ?? null;
-                        $device = $dd->getDeviceName() ?? null;
-                        $brand = $dd->getBrandName() ?? null;
-                        $client_type = $dd->getClient()['type'] ?? null;
-                        $client_name = $dd->getClient()['name'] ?? null;
                         $connection_type = $_connectionType->connectionType;
                         $city_iso = (string)$_city->city->geonameId;
                         $country_iso = $_country->country->isoCode;
                         $continent_iso = $_country->continent->code;
                         $timezone = $_city->location->timeZone;
-                        $utm_source = $user->utm_source ?? null;
-                        $utm_medium = $user->utm_medium ?? null;
-                        $utm_content = $user->utm_content ?? null;
-                        $driver = $user->driver ?? null;
+                    } catch (\Throwable $throwable) {
+                    }
 
-                        $data = [];
-                        $data['id'] = Uuid::uuid4()->toString();
-                        $data['subscriber_id'] = empty($payload['push_subscriber_id']) ? null : $data['push_subscriber_id'];
-                        $data['advertiser_id'] = empty($payload['advertiser_id']) ? null : $payload['advertiser_id'];
-                        $data['ad_id'] = $adId;
-                        $data['publisher_id'] = empty($payload['publisher_id']) ? null : $payload['publisher_id'];
-                        $data['website_id'] = empty($payload['push_website_id']) ? null : $payload['push_website_id'];
-                        $data['manager_id'] = 'e6b39ed1-56ff-4079-87e0-dc22c7dc4a24'; // Vitalik
-                        $data['project_id'] = '9f951b51-a60e-4c74-9346-35c68b66add3'; // RevQuake
-                        $data['cost_type'] = empty($payload['type']) ? 'cpc' : $payload['type'];
-                        $data['revenue'] = $adEvent == 1 ? round($payload['external_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
-                        $data['cost'] = $adEvent == 1 ? round($payload['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
-                        $data['profit'] = $adEvent == 1 ? round($payload['external_price'] - $payload['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
-                        $data['click'] = $adEvent == 0 ? 0 : 1;
-                        $data['impression'] = $adEvent == 1 ? 0 : 1;
-                        $data['is_duplicate'] = 0;
-                        $data['is_hijack'] = 0;
-                        $data['is_fraud'] = 0;
-                        $data['is_test'] = 0;
-                        $data['ip'] = empty($adIp) ? null : $adIp;
-                        $data['os'] = empty($os) ? null : $os;
-                        $data['language'] = empty($language) ? null : $language;
-                        $data['device'] = empty($device) ? null : $device;
-                        $data['brand'] = empty($brand) ? null : $brand;
-                        $data['client_type'] = empty($client_type) ? null : $client_type;
-                        $data['client_name'] = empty($client_name) ? null : $client_name;
-                        $data['connection_type'] = empty($connection_type) ? null : $connection_type;
-                        $data['user_agent'] = empty($adUa) ? null : $adUa;
-                        $data['city_iso'] = empty($city_iso) ? null : $city_iso;
-                        $data['country_iso'] = empty($country_iso) ? null : $country_iso;
-                        $data['continent_iso'] = empty($continent_iso) ? null : $continent_iso;
-                        $data['timezone'] = empty($timezone) ? null : $timezone;
-                        $data['utm_source'] = empty($utm_source) ? null : $utm_source;
-                        $data['utm_medium'] = empty($utm_medium) ? null : $utm_medium;
-                        $data['utm_content'] = empty($utm_content) ? null : $utm_content;
-                        $data['driver'] = empty($driver) ? null : $driver;
-                        $data['triggered_at'] = empty($triggeredAt) ? null : $triggeredAt;
+                    $user = null;
+                    if (isset($payload['subscriber_id']) && !empty($payload['subscriber_id'])) {
+                        $subscriberId = $payload['subscriber_id'];
 
-                        $data['created_at'] = date('Y-m-d H:i:s');
+                        $user = Subscriber::find($subscriberId);
+                    }
 
-                        $json = json_encode($data, JSON_PRETTY_PRINT);
 
-                        $bag = $this->validate($data);
-                        if ($bag->count() > 0) {
-                            $this->notifyService->notify("STATISTICS REQUEST PROBLEM", $bag->getMessages(), $json);
-                            continue;
-                        }
+                    $os = $dd->getOs()['name'] ?? null;
+                    $device = $dd->getDeviceName() ?? null;
+                    $brand = $dd->getBrandName() ?? null;
+                    $client_type = $dd->getClient()['type'] ?? null;
+                    $client_name = $dd->getClient()['name'] ?? null;
 
-                        echo $json . PHP_EOL;
 
-                        $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
-//                    } catch (\Throwable $error) {
-//                        echo "\nERROR: " . $error->getMessage() . "\n" . $error->getFile() . "\n";
-//                    }
+
+                    $utm_source = $user->utm_source ?? null;
+                    $utm_medium = $user->utm_medium ?? null;
+                    $utm_content = $user->utm_content ?? null;
+                    $driver = $user->driver ?? null;
+
+                    $data = [];
+                    $data['id'] = Uuid::uuid4()->toString();
+                    $data['subscriber_id'] = $user->id ?? null;
+                    $data['advertiser_id'] = empty($payload['advertiser_id']) ? null : $payload['advertiser_id'];
+                    $data['ad_id'] = $adId;
+                    $data['publisher_id'] = empty($payload['publisher_id']) ? null : $payload['publisher_id'];
+                    $data['website_id'] = empty($payload['push_website_id']) ? null : $payload['push_website_id'];
+                    $data['manager_id'] = 'e6b39ed1-56ff-4079-87e0-dc22c7dc4a24'; // Vitalik
+                    $data['project_id'] = '9f951b51-a60e-4c74-9346-35c68b66add3'; // RevQuake
+                    $data['cost_type'] = empty($payload['type']) ? 'cpc' : $payload['type'];
+                    $data['revenue'] = $adEvent == 1 ? round($payload['external_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
+                    $data['cost'] = $adEvent == 1 ? round($payload['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
+                    $data['profit'] = $adEvent == 1 ? round($payload['external_price'] - $payload['internal_price'], 4, PHP_ROUND_HALF_DOWN) : 0; // redis
+                    $data['click'] = $adEvent == 0 ? 0 : 1;
+                    $data['impression'] = $adEvent == 1 ? 0 : 1;
+                    $data['is_duplicate'] = 0;
+                    $data['is_hijack'] = 0;
+                    $data['is_fraud'] = 0;
+                    $data['is_test'] = 0;
+                    $data['ip'] = empty($adIp) ? null : $adIp;
+                    $data['os'] = empty($os) ? null : $os;
+                    $data['language'] = empty($language) ? null : $language;
+                    $data['device'] = empty($device) ? null : $device;
+                    $data['brand'] = empty($brand) ? null : $brand;
+                    $data['client_type'] = empty($client_type) ? null : $client_type;
+                    $data['client_name'] = empty($client_name) ? null : $client_name;
+                    $data['connection_type'] = empty($connection_type) ? null : $connection_type;
+                    $data['user_agent'] = empty($adUa) ? null : $adUa;
+                    $data['city_iso'] = empty($city_iso) ? null : $city_iso;
+                    $data['country_iso'] = empty($country_iso) ? null : $country_iso;
+                    $data['continent_iso'] = empty($continent_iso) ? null : $continent_iso;
+                    $data['timezone'] = empty($timezone) ? null : $timezone;
+                    $data['utm_source'] = empty($utm_source) ? null : $utm_source;
+                    $data['utm_medium'] = empty($utm_medium) ? null : $utm_medium;
+                    $data['utm_content'] = empty($utm_content) ? null : $utm_content;
+                    $data['driver'] = empty($driver) ? null : $driver;
+                    $data['triggered_at'] = empty($triggeredAt) ? null : $triggeredAt;
+
+                    $data['created_at'] = date('Y-m-d H:i:s');
+
+                    $json = json_encode($data, JSON_PRETTY_PRINT);
+
+                    $bag = $this->validate($data);
+                    if ($bag->count() > 0) {
+                        $this->notifyService->notify("STATISTICS REQUEST PROBLEM", $bag->getMessages(), $json);
+                        continue 2;
+                    }
+
+                    echo $json . PHP_EOL;
+
+                    $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
 
                     break;
                 case \RD_KAFKA_RESP_ERR__PARTITION_EOF:
@@ -242,6 +262,28 @@ class ConsumerStatisticCommand extends Command
             'driver' => 'nullable',
             'triggered_at' => 'required|date_format:Y-m-d H:i:s',
             'created_at' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        return $validator->errors();
+    }
+
+    protected function validatePayload(array $message)
+    {
+        $validator = Validator::make($message, [
+            'id' => 'required|uuid',
+            'ua' => 'required',
+            'ip' => 'nullable|ip',
+            'event' => 'required|in:0,1',
+            'triggered_at' => 'required|date_format:Y-m-d H:i:s',
+            'raw_id' => 'nullable|uuid',
+            'advertiser_id' => 'nullable|uuid',
+            'website_id' => 'nullable|uuid',
+            'publisher_id' => 'nullable|uuid',
+            'subscriber_id' => 'nullable|uuid',
+            'type' => 'in:cpc,cpa,cpi',
+            'external_price' => 'required|numeric',
+            'internal_price' => 'required|numeric',
+            'language' => 'nullable',
         ]);
 
         return $validator->errors();

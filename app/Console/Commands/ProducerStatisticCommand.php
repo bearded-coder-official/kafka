@@ -51,11 +51,11 @@ class ProducerStatisticCommand extends Command
         $payload['event'] = rand(0, 1);
         $payload['language'] = 'pt-BR';
         $payload['triggered_at'] = date('Y-m-d H:i:s');
-        $payload['push_subscriber_id'] = Uuid::uuid4()->toString();
+        $payload['push_subscriber_id'] = '004b658c-b5e6-4dc2-9b7e-6c06ca4fc273';
         $payload['advertiser_id'] = Uuid::uuid4()->toString();
         $payload['publisher_id'] = Uuid::uuid4()->toString();
         $payload['push_website_id'] = Uuid::uuid4()->toString();
-        $payload['type'] = Uuid::uuid4()->toString();
+        $payload['type'] = 'cpc';
         $payload['external_price'] = 0.10;
         $payload['internal_price'] = 0.08;
 

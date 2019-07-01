@@ -88,7 +88,7 @@ class ConsumeRawCommand extends Command
                     if ($payload == null) {
                         $this->notifyService->notify("RAW REQUEST PARSE PROBLEM", [], $message->payload);
 
-                        continue;
+                        continue 2;
                     }
 
                     $data = [];
@@ -107,7 +107,7 @@ class ConsumeRawCommand extends Command
                     $bag = $this->validate($data);
                     if ($bag->count() > 0) {
                         $this->notifyService->notify("RAW REQUEST PROBLEM", $bag->getMessages(), $json);
-                        continue;
+                        continue 2;
                     }
 
                     echo "OK\n";
