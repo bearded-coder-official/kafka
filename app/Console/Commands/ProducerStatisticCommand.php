@@ -45,18 +45,25 @@ class ProducerStatisticCommand extends Command
         $topic = $rkProducer->newTopic(env('KAFKA_STATISTICS_TOPIC_QUEUE_NAME'));
 
         $payload = [];
-        $payload['Id'] = Uuid::uuid4()->toString();
-        $payload['UA'] = 'Mozilla/5.0 (Linux; Android 9; moto g(6) play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Mobile Safari/537.36';
-        $payload['IP'] = '170.80.224.3';
-        $payload['Event'] = rand(0, 1);
-        $payload['Language'] = 'pt-BR';
-        $payload['TriggeredAt'] = date('Y-m-d H:i:s');
+        $payload['id'] = Uuid::uuid4()->toString();
+        $payload['ua'] = 'Mozilla/5.0 (Linux; Android 9; moto g(6) play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Mobile Safari/537.36';
+        $payload['ip'] = '170.80.224.3';
+        $payload['event'] = rand(0, 1);
+        $payload['language'] = 'pt-BR';
+        $payload['triggered_at'] = date('Y-m-d H:i:s');
+        $payload['push_subscriber_id'] = Uuid::uuid4()->toString();
+        $payload['advertiser_id'] = Uuid::uuid4()->toString();
+        $payload['publisher_id'] = Uuid::uuid4()->toString();
+        $payload['push_website_id'] = Uuid::uuid4()->toString();
+        $payload['type'] = Uuid::uuid4()->toString();
+        $payload['external_price'] = 0.10;
+        $payload['internal_price'] = 0.08;
 
         $json = json_encode($payload);
 
         echo $json . PHP_EOL;
 
-        for ($i = 1; $i <= 25; $i++) {
+        for ($i = 1; $i <= 1; $i++) {
             $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);
         }
     }
