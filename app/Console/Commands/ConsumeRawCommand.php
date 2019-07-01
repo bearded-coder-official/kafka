@@ -80,7 +80,16 @@ class ConsumeRawCommand extends Command
             $message = $consumer->consume(120 * 1000);
             switch ($message->err) {
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
+                    var_dump($message->payload);
+                    echo "\n\n";
+
                     $payload = json_decode($message->payload, true);
+
+                    if ($payload == null) {
+                        $this->notifyService->notify("RAW REQUEST PARSE PROBLEM", [], $message->payload);
+
+                        continue;
+                    }
 
                     $data = [];
                     $data['id'] = empty($payload['id']) ? null : $payload['id'];
@@ -94,13 +103,14 @@ class ConsumeRawCommand extends Command
                     $data['created_at'] = empty($payload['created_at']) ? null : $payload['created_at'];
 
                     $json = json_encode($data, JSON_PRETTY_PRINT);
-                    
+
                     $bag = $this->validate($data);
                     if ($bag->count() > 0) {
                         $this->notifyService->notify("RAW REQUEST PROBLEM", $bag->getMessages(), $json);
                         continue;
                     }
 
+                    echo "OK\n";
                     echo $json . PHP_EOL;
 
                     $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $json);

@@ -83,7 +83,16 @@ class ConsumeAdCommand extends Command
             $message = $consumer->consume(120 * 1000);
             switch ($message->err) {
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
+                    var_dump($message->payload);
+                    echo "\n\n";
+
                     $payload = json_decode($message->payload, true);
+
+                    if ($payload == null) {
+                        $this->notifyService->notify("AD REQUEST PARSE PROBLEM", [], $message->payload);
+
+                        continue;
+                    }
 
                     $data = [];
                     $data['id'] = empty($payload['id']) ? null : $payload['id'];
@@ -119,9 +128,12 @@ class ConsumeAdCommand extends Command
 
                     $bag = $this->validate($data);
                     if ($bag->count() > 0) {
-                        $this->notifyService->notify("RAW REQUEST PROBLEM", $bag->getMessages(), $json);
+                        $this->notifyService->notify("AD REQUEST PROBLEM", $bag->getMessages(), $json);
                         continue;
                     }
+
+                    echo "OK\n";
+                    echo $json . PHP_EOL;
 
                     echo $json . PHP_EOL;
 
